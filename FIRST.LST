@@ -1,0 +1,66 @@
+Microsoft (R) Macro Assembler Version 5.00                  1/4/25 22:03:11
+                                                             Page     1-1
+
+
+       1				.model small 
+       2 0100				.stack 100h 
+       3 0000				.data 
+       4 0000  48 65 6C 6C 6F 2C 20	Message DB 'Hello, my name is Gerald' ,
+					13, 10, '$'                            
+					                                       
+					               
+first.asm(4): error A2106: Line too long
+       5       6D 79 20 6E 61 6D 65	
+       6       20 69 73 20 47 65 72	
+       7       61 6C 64 0D 0A 24	
+       8				                                       
+					                                       
+					                                       
+					               
+       9 0000				.code 
+      10 0000				Hello Proc 
+      11 0000  B8 ---- R		mov ax, @data 
+      12 0003  8E D8			mov ds, ax 
+      13 0005  BA 0000 R		mov dx, OFFSET Message 
+      14 0008  B4 09			mov ah, 9h 
+      15 000A  CD 21			int 21h 
+      16 000C  B0 00			mov al, 0 
+      17 000E  B4 4C			mov ah, 04ch 
+      18 0010  CD 21			int 21h 
+      19 0012				Hello ENDP 
+      20 0012				END Hello 
+Microsoft (R) Macro Assembler Version 5.00                  1/4/25 22:03:11
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	001B	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0100	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	0012	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+HELLO  . . . . . . . . . . . . .  	N PROC	0000	_TEXT	Length = 0012
+
+MESSAGE  . . . . . . . . . . . .  	L BYTE	0000	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  first		
+
+
+     17 Source  Lines
+     17 Total   Lines
+     16 Symbols
+
+  50584 + 465960 Bytes symbol space free
+
+      0 Warning Errors
+      1 Severe  Errors
