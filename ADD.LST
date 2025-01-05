@@ -1,0 +1,180 @@
+Microsoft (R) Macro Assembler Version 5.00                  1/5/25 10:03:09
+                                                             Page     1-1
+
+
+       1				.386                            ; Use 8
+					0386 instruction set 
+       2				.model flat, stdcall            ; Flat 
+					memory model, stdcall calling conventio
+					n 
+       3 1000				.stack 4096                     ; Alloc
+					ate stack of 4096 bytes 
+       4				 
+       5 0000				.data                           ; Data 
+					segment 
+       6 0000  000F			    num1 dw 15                  ; First
+					 number (word, 16-bit) 
+       7 0002  001B			    num2 dw 27                  ; Secon
+					d number (word, 16-bit) 
+       8 0004  ????			    result dw ?                 ; Varia
+					ble to store the result (word, 16-bit) 
+       9 0006  54 68 65 20 73 75 6D	    msg db 'The sum is: $'      ; Messa
+					ge to display before the result 
+      10       20 69 73 3A 20 24	
+      11 0013  0006[			    resultStr db 6 DUP(?)       ; Strin
+					g to store the result in ASCII 
+      12	    ??			
+      13			 ]	
+      14				
+      15				 
+      16 0000				.code                           ; Code 
+					segment 
+      17 0000				main PROC                       ; Main 
+					procedure 
+      18				 
+      19				    ; Add num1 and num2 
+      20 0000  66| A1 00000000 R	    mov ax, num1                ; Load 
+					the first number into AX 
+      21 0006  66| 03 05 00000002 R	    add ax, num2                ; Add t
+					he second number to AX 
+      22 000D  66| A3 00000004 R	    mov result, ax              ; Store
+					 the result in the result variable 
+      23				 
+      24				    ; Convert the result to a string 
+      25 0013  8D 3D 00000013 R		    lea di, resultStr           ; Load 
+					the address of resultStr into DI 
+      26 0019  66| B9 0000		    mov cx, 0                   ; Initi
+					alize counter for digits 
+      27				 
+      28				    ; Extract each digit in reverse ord
+					er 
+      29 001D				convert_loop: 
+      30 001D  66| 33 D2		    xor dx, dx                  ; Clear
+					 DX for division 
+      31 0020  67| 66| F7 B6 000A	    div word ptr 10             ; Divid
+					e AX by 10, result in AX, remainder in 
+					DX 
+add.asm(27): error A2056: Immediate mode illegal
+      32 0026  80 C2 30			    add dl, '0'                 ; Conve
+Microsoft (R) Macro Assembler Version 5.00                  1/5/25 10:03:09
+                                                             Page     1-2
+
+
+					rt remainder to ASCII 
+      33 0029  67| 88 15		    mov [di], dl                ; Store
+					 ASCII character in resultStr 
+      34 002C  66| 47			    inc di                      ; Move 
+					to the next character 
+      35 002E  66| 41			    inc cx                      ; Incre
+					ment digit counter 
+      36 0030  66| 85 C0		    test ax, ax                 ; Check
+					 if AX is zero (all digits processed) 
+      37 0033  75 E8			    jnz convert_loop            ; If no
+					t, continue the loop 
+      38				 
+      39				    ; Reverse the string to get correct
+					 order 
+      40 0035  66| 4F			    dec di                      ; Adjus
+					t DI to the last character 
+      41 0037  8D 35 00000013 R		    lea si, resultStr           ; Load 
+					the start of resultStr into SI 
+      42 003D				reverse_loop: 
+      43 003D  66| 3B F7		    cmp si, di                  ; Check
+					 if pointers meet 
+      44 0040  0F 8D 00000058 R		    jge reverse_done            ; If so
+					, we are done 
+      45 0046  67| 8A 04		    mov al, [si]                ; Swap 
+					characters 
+      46 0049  67| 8A 1D		    mov bl, [di] 
+      47 004C  67| 88 1C		    mov [si], bl 
+      48 004F  67| 88 05		    mov [di], al 
+      49 0052  66| 46			    inc si                      ; Move 
+					SI forward 
+      50 0054  66| 4F			    dec di                      ; Move 
+					DI backward 
+      51 0056  EB E5			    jmp reverse_loop            ; Repea
+					t the loop 
+      52 0058				reverse_done: 
+      53				 
+      54				    ; Append the '$' for DOS interrupt 
+      55 0058  8D 3D 00000013 R		    lea di, resultStr           ; Reset
+					 DI to start of the string 
+      56 005E  66| 03 F9		    add di, cx                  ; Move 
+					DI to the end of the string 
+      57 0061  67| C6 05 24		    mov byte ptr [di], '$'      ; Appen
+					d '$' for DOS interrupt 
+      58				 
+      59				    ; Display the message 
+      60 0065  8D 15 00000006 R		    lea dx, msg                 ; Load 
+					the address of msg into DX 
+      61 006B  B4 09			    mov ah, 09h                 ; Funct
+					ion 09h: Display string 
+      62 006D  CD 21			    int 21h                     ; Call 
+					DOS interrupt 
+      63				 
+      64				    ; Display the result 
+      65 006F  8D 15 00000013 R		    lea dx, resultStr           ; Load 
+Microsoft (R) Macro Assembler Version 5.00                  1/5/25 10:03:09
+                                                             Page     1-3
+
+
+					the address of resultStr into DX 
+      66 0075  B4 09			    mov ah, 09h                 ; Funct
+					ion 09h: Display string 
+      67 0077  CD 21			    int 21h                     ; Call 
+					DOS interrupt 
+      68				 
+      69				    ; Exit program 
+      70 0079  B4 4C			    mov ah, 4Ch                 ; Funct
+					ion 4Ch: Exit program 
+      71 007B  32 C0			    xor al, al                  ; Retur
+					n code 0 
+      72 007D  CD 21			    int 21h                     ; Call 
+					DOS interrupt 
+      73				 
+      74 007F				main ENDP 
+      75 007F				END main 
+Microsoft (R) Macro Assembler Version 5.00                  1/5/25 10:03:09
+                                                             Symbols-1
+
+
+
+
+                N a m e         	Size	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	32 Bit	0019	DWORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	32 Bit	1000	PARA	STACK	'STACK'
+_TEXT  . . . . . . . . . . . . .  	32 Bit	007F	DWORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+CONVERT_LOOP . . . . . . . . . .  	L NEAR	001D	_TEXT
+
+MAIN . . . . . . . . . . . . . .  	N PROC	0000	_TEXT	Length = 007F
+MSG  . . . . . . . . . . . . . .  	L BYTE	0006	_DATA
+
+NUM1 . . . . . . . . . . . . . .  	L WORD	0000	_DATA
+NUM2 . . . . . . . . . . . . . .  	L WORD	0002	_DATA
+
+RESULT . . . . . . . . . . . . .  	L WORD	0004	_DATA
+RESULTSTR  . . . . . . . . . . .  	L BYTE	0013	_DATA	Length = 0006
+REVERSE_DONE . . . . . . . . . .  	L NEAR	0058	_TEXT
+REVERSE_LOOP . . . . . . . . . .  	L NEAR	003D	_TEXT
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  add		
+
+
+     71 Source  Lines
+     71 Total   Lines
+     23 Symbols
+
+  50524 + 466020 Bytes symbol space free
+
+      0 Warning Errors
+      1 Severe  Errors
